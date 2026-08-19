@@ -40,18 +40,21 @@ public class NewsAgentService {
     private final ArticleRepository articleRepository;
     private final DailyDigestRepository dailyDigestRepository;
     private final ChatLanguageModel chatLanguageModel;
+    private final GmailService gmailService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public NewsAgentService(EmbeddingModel embeddingModel,
             EmbeddingStore<TextSegment> embeddingStore,
             ArticleRepository articleRepository,
             DailyDigestRepository dailyDigestRepository,
-            ChatLanguageModel chatLanguageModel) {
+            ChatLanguageModel chatLanguageModel,
+            GmailService gmailService) {
         this.embeddingModel = embeddingModel;
         this.embeddingStore = embeddingStore;
         this.articleRepository = articleRepository;
         this.dailyDigestRepository = dailyDigestRepository;
         this.chatLanguageModel = chatLanguageModel;
+        this.gmailService = gmailService;
     }
 
     public List<RankedArticle> generateDailyTop20() {
@@ -64,6 +67,13 @@ public class NewsAgentService {
         List<RankedArticle> ranked = parseRankedArticles(rawResponse);
 
         saveDigest(ranked);
+
+        try {
+            gmailService.sendDigestEmail(ranked);
+        } catch (Exception e) {
+            log.error("Failed to send digest email", e);
+        }
+
         return ranked;
     }
 
