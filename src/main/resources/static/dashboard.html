@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI/IT News — Top 20</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 16px;
+            color: #1a1a1a;
+        }
+
+        h1 {
+            font-size: 22px;
+        }
+
+        .article {
+            border-bottom: 1px solid #e5e5e5;
+            padding: 14px 0;
+        }
+
+        .rank {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 4px 0;
+        }
+
+        .title a {
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .title a:hover {
+            text-decoration: underline;
+        }
+
+        .summary {
+            font-size: 14px;
+            color: #444;
+            margin: 4px 0;
+        }
+
+        .source {
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🗞️ Today's Top 20 — AI & IT News</h1>
+    <div id="list">Loading...</div>
+
+    <script>
+        fetch('/api/digest/latest')
+            .then(res => {
+                if (res.status === 204) throw new Error('No digest yet — run the pipeline first.');
+                return res.json();
+            })
+            .then(articles => {
+                const list = document.getElementById('list');
+                list.innerHTML = articles.map(a => `
+                    <div class="article">
+                        <div class="rank">#${a.rank}</div>
+                        <div class="title"><a href="${a.url}" target="_blank">${a.title}</a></div>
+                        <div class="summary">${a.summary}</div>
+                        <div class="source">${a.source}</div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => {
+                document.getElementById('list').textContent = err.message;
+            });
+    </script>
+</body>
+
+</html>
